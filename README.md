@@ -1,4 +1,4 @@
-# 🛡️ Automated Cybersecurity Agent - n8n Workflow
+<img width="1635" height="878" alt="image" src="https://github.com/user-attachments/assets/df07bd49-d125-4c2c-8095-717cdda4a5b0" /># 🛡️ Automated Cybersecurity Agent - n8n Workflow
 
 An intelligent cybersecurity automation system built with n8n that processes real-time threat intelligence and automates incident response through rule-based decision making.
 
@@ -49,7 +49,6 @@ Threat Intelligence → Data Processing → Risk Assessment → Decision Engine 
 
 # Manual test execution
 Click "Execute Workflow" in n8n
+<img width="1635" height="878" alt="image" src="https://github.com/user-attachments/assets/3ae52bb1-b1c5-475c-b74d-8ce73287b733" />
 
-# Check all node outputs
-# Verify notifications are sent
-# Review generated reports
+
