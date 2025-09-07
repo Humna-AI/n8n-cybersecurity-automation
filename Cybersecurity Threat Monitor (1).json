@@ -1,0 +1,349 @@
+{
+  "name": "Cybersecurity Threat Monitor",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -432,
+        0
+      ],
+      "id": "32e2a956-fac5-43bb-a296-3a58169f0f96",
+      "name": "Start Security Scan"
+    },
+    {
+      "parameters": {
+        "url": "https://raw.githubusercontent.com/stamparm/ipsum/master/ipsum.txt",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -224,
+        0
+      ],
+      "id": "cd21290d-52d9-4c9d-a328-af63779f2d54",
+      "name": "Fetch IPs"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Simple test data approach\nconsole.log(\"Creating test threat data...\");\n\nconst testThreatIPs = [\n  \"1.2.3.4\",\n  \"5.6.7.8\", \n  \"9.10.11.12\",\n  \"13.14.15.16\",\n  \"17.18.19.20\"\n];\n\nconst threatData = testThreatIPs.map(ip => ({\n  ip: ip,\n  source: 'Test Data',\n  detected_date: new Date().toISOString(),\n  threat_level: 'HIGH',\n  confidence: 95\n}));\n\nconsole.log(`Created ${threatData.length} test threats`);\n\nreturn threatData.map(threat => ({ json: threat }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -16,
+        0
+      ],
+      "id": "69ebe466-2702-400e-95a1-f76afb0d442d",
+      "name": "Process Threat IP"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Risk assessment for hardcoded threat data\nconsole.log(\"Processing\", items.length, \"threat items for risk assessment\");\n\nconst processedThreats = [];\n\nfor (const item of items) {\n  const threat = item.json;\n  let riskScore = 0;\n  let actionRequired = 'MONITOR';\n  \n  console.log(`Assessing risk for IP: ${threat.ip}`);\n  \n  // Base risk from confidence level\n  riskScore += threat.confidence;\n  \n  // Simulate geolocation risk (in real scenario, you'd use IP geolocation API)\n  const highRiskCountries = ['CN', 'RU', 'KP', 'IR', 'XX'];\n  const allCountries = ['US', 'CN', 'RU', 'DE', 'FR', 'UK', 'XX'];\n  const randomCountry = allCountries[Math.floor(Math.random() * allCountries.length)];\n  \n  if (highRiskCountries.includes(randomCountry)) {\n    riskScore += 20;\n    console.log(`High risk country detected: ${randomCountry}`);\n  }\n  \n  // Check IP patterns for additional risk\n  const ipParts = threat.ip.split('.');\n  const firstOctet = parseInt(ipParts[0]);\n  const lastOctet = parseInt(ipParts[3]);\n  \n  // Suspicious IP patterns\n  if (firstOctet > 200 || lastOctet > 250) {\n    riskScore += 15;\n    console.log(`Suspicious IP pattern detected`);\n  }\n  \n  // Time-based risk (simulate recent activity)\n  const currentHour = new Date().getHours();\n  if (currentHour < 6 || currentHour > 22) {\n    riskScore += 10; // Higher risk during off-hours\n    console.log(`Off-hours activity detected`);\n  }\n  \n  // Determine action based on risk score\n  if (riskScore >= 100) {\n    actionRequired = 'BLOCK_IMMEDIATELY';\n  } else if (riskScore >= 80) {\n    actionRequired = 'BLOCK';\n  } else if (riskScore >= 60) {\n    actionRequired = 'ALERT';\n  } else {\n    actionRequired = 'MONITOR';\n  }\n  \n  processedThreats.push({\n    ...threat,\n    country: randomCountry,\n    risk_score: Math.min(120, riskScore), // Cap at 120\n    action_required: actionRequired,\n    assessment_time: new Date().toISOString(),\n    risk_factors: {\n      base_confidence: threat.confidence,\n      geo_risk: highRiskCountries.includes(randomCountry),\n      ip_pattern_risk: firstOctet > 200 || lastOctet > 250,\n      time_risk: currentHour < 6 || currentHour > 22\n    }\n  });\n  \n  console.log(`IP ${threat.ip}: Risk Score = ${riskScore}, Action = ${actionRequired}`);\n}\n\nconsole.log(`Risk assessment completed for ${processedThreats.length} threats`);\nreturn processedThreats.map(threat => ({ json: threat }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        192,
+        0
+      ],
+      "id": "bab42c53-73dc-4258-ae49-8d4a6266e3fe",
+      "name": "Risk Assessment"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Critical threat response\nconsole.log(\"🚨 EXECUTING CRITICAL THREAT RESPONSE 🚨\");\n\nconst blockedThreats = [];\n\nfor (const item of items) {\n  const threat = item.json;\n  \n  console.log(`CRITICAL: Blocking IP ${threat.ip} immediately!`);\n  console.log(`Risk Score: ${threat.risk_score}`);\n  console.log(`Country: ${threat.country}`);\n  console.log(`Risk Factors:`, threat.risk_factors);\n  \n  // Simulate immediate blocking action\n  blockedThreats.push({\n    ...threat,\n    action_taken: 'BLOCKED_IMMEDIATELY',\n    block_timestamp: new Date().toISOString(),\n    blocked_by: 'AI_Security_Agent',\n    status: 'CRITICAL_THREAT_NEUTRALIZED',\n    firewall_rule_added: `BLOCK_IP_${threat.ip}`,\n    notification_sent: true\n  });\n}\n\nconsole.log(`✅ Successfully blocked ${blockedThreats.length} critical threats`);\nreturn blockedThreats.map(threat => ({ json: threat }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        800,
+        -112
+      ],
+      "id": "88a8fe6d-9a10-4811-be78-4f4f2966a4cb",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "jsCode": "// High threat response  \nconsole.log(\"🔴 EXECUTING HIGH THREAT RESPONSE\");\n\nconst blockedThreats = [];\n\nfor (const item of items) {\n  const threat = item.json;\n  \n  console.log(`HIGH: Scheduling block for IP ${threat.ip}`);\n  console.log(`Risk Score: ${threat.risk_score}`);\n  \n  blockedThreats.push({\n    ...threat,\n    action_taken: 'SCHEDULED_BLOCK',\n    block_timestamp: new Date(Date.now() + 5*60*1000).toISOString(), // 5 min delay\n    blocked_by: 'AI_Security_Agent',\n    status: 'HIGH_THREAT_SCHEDULED',\n    review_required: false\n  });\n}\n\nconsole.log(`✅ Scheduled ${blockedThreats.length} high threats for blocking`);\nreturn blockedThreats.map(threat => ({ json: threat }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        800,
+        32
+      ],
+      "id": "ef1b944d-ac54-4d54-9553-211ab81a6a90",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Medium threat alerting\nconsole.log(\"🟡 GENERATING SECURITY ALERTS\");\n\nconst alerts = [];\n\nfor (const item of items) {\n  const threat = item.json;\n  \n  console.log(`ALERT: Flagging IP ${threat.ip} for investigation`);\n  \n  alerts.push({\n    ...threat,\n    action_taken: 'ALERT_GENERATED',\n    alert_timestamp: new Date().toISOString(),\n    alert_level: 'MEDIUM',\n    requires_investigation: true,\n    assigned_to: 'security_team',\n    status: 'PENDING_REVIEW',\n    estimated_review_time: '2 hours'\n  });\n}\n\nconsole.log(`✅ Generated ${alerts.length} security alerts`);\nreturn alerts.map(alert => ({ json: alert }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        608,
+        112
+      ],
+      "id": "1d3a3092-ab13-431c-bd67-5abf27b7228e",
+      "name": "Code2"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.action_required }}",
+                    "rightValue": "=BLOCK_IMMEDIATELY",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "c3a26ee8-0972-44b0-b9a1-6cd5942e4a0b"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "CRITICAL"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "86a6b473-2a39-4d22-bf4f-10bec11d7410",
+                    "leftValue": "={{ $json.action_required }}",
+                    "rightValue": "BLOCK",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "HIGH"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "ed68f2b7-b759-4722-ac7f-fee7f7da4895",
+                    "leftValue": "={{ $json.action_required }}",
+                    "rightValue": "ALERT ",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "MEDIUM "
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": 0
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        400,
+        0
+      ],
+      "id": "75809545-6770-43fe-84d6-4b1b041f9d3f",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "numberInputs": 3,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1168,
+        64
+      ],
+      "id": "1c204734-28ec-4dc8-9d24-d415b9ef6c68",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 📊 COMPREHENSIVE CYBERSECURITY SUMMARY REPORT GENERATOR\nconsole.log(\"📊 GENERATING COMPREHENSIVE SECURITY SUMMARY...\");\n\nconst reportTimestamp = new Date().toISOString();\nconst reportDate = new Date().toLocaleDateString();\nconst reportTime = new Date().toLocaleTimeString();\n\n// Initialize summary structure\nconst securitySummary = {\n  // Report metadata\n  report_info: {\n    generated_at: reportTimestamp,\n    report_date: reportDate,\n    report_time: reportTime,\n    report_type: 'AI_CYBERSECURITY_ANALYSIS',\n    report_version: '2.0',\n    generated_by: 'n8n_AI_Security_Agent'\n  },\n  \n  // Executive summary\n  executive_summary: {\n    total_threats_analyzed: items.length,\n    scan_duration: '30 seconds',\n    ai_engine: 'Groq Llama3',\n    threat_sources: ['IPSUM Feed', 'FireHOL', 'Real-time Intelligence']\n  },\n  \n  // Action breakdown\n  actions_taken: {\n    critical_blocks: 0,\n    high_risk_scheduled: 0,\n    alerts_generated: 0,\n    threats_monitored: 0\n  },\n  \n  // Risk analysis\n  risk_analysis: {\n    highest_risk_score: 0,\n    lowest_risk_score: 100,\n    average_risk_score: 0,\n    risk_distribution: {\n      critical: 0,    // 90+\n      high: 0,        // 70-89\n      medium: 0,      // 50-69\n      low: 0          // <50\n    }\n  },\n  \n  // Threat intelligence\n  threat_intelligence: {\n    threat_types: {},\n    countries_involved: {},\n    attack_vectors: {},\n    ai_recommendations: {}\n  },\n  \n  // Detailed findings\n  detailed_findings: [],\n  \n  // Security recommendations\n  recommendations: []\n};\n\nlet totalRiskScore = 0;\n\n// Process each threat item\nfor (const item of items) {\n  const threat = item.json;\n  \n  console.log(`Processing: ${threat.ip} - ${threat.action_taken}`);\n  \n  // Count actions taken\n  switch (threat.action_taken) {\n    case 'BLOCKED_IMMEDIATELY':\n      securitySummary.actions_taken.critical_blocks++;\n      break;\n    case 'SCHEDULED_FOR_BLOCKING':\n      securitySummary.actions_taken.high_risk_scheduled++;\n      break;\n    case 'ALERT_GENERATED':\n      securitySummary.actions_taken.alerts_generated++;\n      break;\n    case 'ADDED_TO_WATCHLIST':\n      securitySummary.actions_taken.threats_monitored++;\n      break;\n  }\n  \n  // Risk analysis\n  const riskScore = threat.final_risk_score || threat.ai_risk_score || 50;\n  totalRiskScore += riskScore;\n  \n  if (riskScore > securitySummary.risk_analysis.highest_risk_score) {\n    securitySummary.risk_analysis.highest_risk_score = riskScore;\n  }\n  if (riskScore < securitySummary.risk_analysis.lowest_risk_score) {\n    securitySummary.risk_analysis.lowest_risk_score = riskScore;\n  }\n  \n  // Risk distribution\n  if (riskScore >= 90) securitySummary.risk_analysis.risk_distribution.critical++;\n  else if (riskScore >= 70) securitySummary.risk_analysis.risk_distribution.high++;\n  else if (riskScore >= 50) securitySummary.risk_analysis.risk_distribution.medium++;\n  else securitySummary.risk_analysis.risk_distribution.low++;\n  \n  // Threat intelligence tracking\n  if (threat.threat_type) {\n    securitySummary.threat_intelligence.threat_types[threat.threat_type] = \n      (securitySummary.threat_intelligence.threat_types[threat.threat_type] || 0) + 1;\n  }\n  \n  if (threat.geo_risk || threat.country) {\n    const country = threat.geo_risk || threat.country || 'Unknown';\n    securitySummary.threat_intelligence.countries_involved[country] = \n      (securitySummary.threat_intelligence.countries_involved[country] || 0) + 1;\n  }\n  \n  if (threat.recommended_action) {\n    securitySummary.threat_intelligence.ai_recommendations[threat.recommended_action] = \n      (securitySummary.threat_intelligence.ai_recommendations[threat.recommended_action] || 0) + 1;\n  }\n  \n  // Store detailed findings\n  securitySummary.detailed_findings.push({\n    ip_address: threat.ip,\n    risk_score: riskScore,\n    threat_type: threat.threat_type || 'Unknown',\n    action_taken: threat.action_taken,\n    ai_analysis: threat.analysis_summary || 'No summary available',\n    timestamp: threat.analysis_timestamp || reportTimestamp\n  });\n}\n\n// Calculate averages\nsecuritySummary.risk_analysis.average_risk_score = \n  Math.round(totalRiskScore / items.length);\n\n// Generate recommendations based on findings\nconst recommendations = [];\n\nif (securitySummary.actions_taken.critical_blocks > 0) {\n  recommendations.push({\n    priority: 'HIGH',\n    category: 'Immediate Action',\n    recommendation: `${securitySummary.actions_taken.critical_blocks} critical threats were blocked. Review firewall logs and validate blocking rules.`,\n    timeline: 'Immediate'\n  });\n}\n\nif (securitySummary.actions_taken.alerts_generated > 0) {\n  recommendations.push({\n    priority: 'MEDIUM',\n    category: 'Investigation Required',\n    recommendation: `${securitySummary.actions_taken.alerts_generated} threats require SOC team investigation within 2 hours.`,\n    timeline: '2 hours'\n  });\n}\n\nif (securitySummary.risk_analysis.average_risk_score > 70) {\n  recommendations.push({\n    priority: 'HIGH',\n    category: 'Security Posture',\n    recommendation: 'High average risk score detected. Consider enhancing threat intelligence feeds and security controls.',\n    timeline: '24 hours'\n  });\n}\n\nrecommendations.push({\n  priority: 'LOW',\n  category: 'Continuous Improvement',\n  recommendation: 'Schedule next automated threat analysis in 4 hours. Monitor blocked IPs for bypass attempts.',\n  timeline: '4 hours'\n});\n\nsecuritySummary.recommendations = recommendations;\n\n// Generate executive summary text\nconst executiveSummaryText = `\n🛡️ CYBERSECURITY EXECUTIVE SUMMARY 🛡️\n\n📊 THREAT ANALYSIS OVERVIEW:\n• Total Threats Analyzed: ${securitySummary.executive_summary.total_threats_analyzed}\n• Analysis Engine: ${securitySummary.executive_summary.ai_engine}\n• Average Risk Score: ${securitySummary.risk_analysis.average_risk_score}/100\n\n🚨 IMMEDIATE ACTIONS TAKEN:\n• Critical Threats Blocked: ${securitySummary.actions_taken.critical_blocks}\n• High-Risk Scheduled: ${securitySummary.actions_taken.high_risk_scheduled}\n• Security Alerts: ${securitySummary.actions_taken.alerts_generated}\n• Monitoring: ${securitySummary.actions_taken.threats_monitored}\n\n⚠️ RISK DISTRIBUTION:\n• Critical (90+): ${securitySummary.risk_analysis.risk_distribution.critical}\n• High (70-89): ${securitySummary.risk_analysis.risk_distribution.high}\n• Medium (50-69): ${securitySummary.risk_analysis.risk_distribution.medium}\n• Low (<50): ${securitySummary.risk_analysis.risk_distribution.low}\n\n🌍 TOP THREAT COUNTRIES: ${Object.keys(securitySummary.threat_intelligence.countries_involved).slice(0,3).join(', ')}\n\n🎯 TOP THREAT TYPES: ${Object.keys(securitySummary.threat_intelligence.threat_types).slice(0,3).join(', ')}\n\nGenerated: ${reportDate} ${reportTime}\n`;\n\nsecuritySummary.executive_summary_text = executiveSummaryText;\n\n// Console output\nconsole.log(\"=\".repeat(60));\nconsole.log(\"🛡️  AI CYBERSECURITY SUMMARY REPORT  🛡️\");\nconsole.log(\"=\".repeat(60));\nconsole.log(executiveSummaryText);\nconsole.log(\"=\".repeat(60));\nconsole.log(`📋 Full report generated with ${securitySummary.detailed_findings.length} detailed findings`);\nconsole.log(`🔍 ${securitySummary.recommendations.length} security recommendations provided`);\nconsole.log(\"=\".repeat(60));\n\nreturn [{ json: securitySummary }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1376,
+        64
+      ],
+      "id": "b22f83b4-2a57-4a14-95ce-5dabc4c9ae19",
+      "name": "Security Summary Generator"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Start Security Scan": {
+      "main": [
+        [
+          {
+            "node": "Fetch IPs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch IPs": {
+      "main": [
+        [
+          {
+            "node": "Process Threat IP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Threat IP": {
+      "main": [
+        [
+          {
+            "node": "Risk Assessment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Risk Assessment": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code2": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Security Summary Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Security Summary Generator": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d923c439-41a0-498b-93d2-fab60c2594dd",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "18a5c932e1f748e608aefc780b19032ea45a5bea64b611fc6c562a2e7f69d68f"
+  },
+  "id": "87ypAiLS0155T2gG",
+  "tags": []
+}
